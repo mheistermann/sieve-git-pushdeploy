@@ -21,11 +21,16 @@ and adjust the values.
 
 Somewhere,
 ```
+HOOK=path/to/sieve-git-pushdeploy/.venv/bin/sieve-git-pushdeploy
+
 git init --bare sieve.git
 cd sieve.git/hooks
-ln -s path/to/sieve-git-pushdeploy/.venv/bin/sieve-git-pushdeploy post-receive
+ln -s $HOOK post-receive
+ln -s $HOOK update
 ```
-Now you can clone that repo and push your configs to it, they will be checked
+You can also opt to only use a subset of the hooks.
+
+Now if you clone that repo and push your configs to it, they will be checked
 and uploaded automatically.
 
 ## License

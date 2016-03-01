@@ -22,7 +22,7 @@ import sys
 import logging
 import ConfigParser
 import subprocess
-from sievelib.managesieve import Client
+from sievelib.managesieve import Client, SUPPORTED_AUTH_MECHS
 
 
 CONFIG_FILENAME = "~/.config/sieve-git-pushdeploy/sieve.conf"
@@ -41,7 +41,7 @@ def read_config(git_path):
         "starttls": "False",
         "scriptname": "main",
         "file": "main.sieve",
-        "authmech": None,
+        "authmech": "None",
         "refname": "refs/heads/master",
     }
     config = ConfigParser.SafeConfigParser(defaults)
@@ -54,6 +54,15 @@ def read_config(git_path):
     conf = {k: config.get(git_path, k) for k in [
         "host", "user", "pass", "file", "authmech", "scriptname", "refname"]}
     conf["starttls"] = config.getboolean(git_path, "starttls")
+    supported_auth_mechs = ["None"] + SUPPORTED_AUTH_MECHS
+    if conf["authmech"] not in supported_auth_mechs:
+        raise ConfigError((
+            "Authentication mechanism '{}' not supported by sievelib.\n"
+           +"Available: {}").format(
+                conf['authmech'],
+                ", ".join(supported_auth_mechs)))
+    if conf["authmech"] == "None":
+        conf["authmech"] = None
 
     return conf
 
@@ -77,20 +86,15 @@ def connect(config):
         raise SieveError(
                 ("Login unsuccessful for %(user)s:***@%(host)s," +
                  " starttls=%(starttls)s, authmech=%(authmech)s") % config)
+    logging.info("current scripts; %s", conn.listscripts())
     return conn
 
 
-def hook_post_receive():
+def hook_post_receive(config):
     """Check sieve script syntax and upload it according to config file."""
-    git_path = os.getcwd()
-    config = read_config(git_path)
-    logging.debug("config: {}", config)
 
     script = get_script(config["refname"], config["file"])
-
     conn = connect(config)
-
-    logging.info("current scripts; %s", conn.listscripts())
 
     if not conn.checkscript(script):
         raise SieveError("script invalid.")
@@ -101,9 +105,23 @@ def hook_post_receive():
     if not conn.setactive(config["scriptname"]):
         raise SieveError("could not set script active")
     print("Successfully uploaded sieve script.")
+    return 0
+
+
+def hook_update(config, branch, old_hash, new_hash):
+    """Check sieve script validity, reject updates with invalid scripts."""
+    script = get_script(new_hash, config["file"])
+    conn = connect(config)
+
+    error = conn.get_script_error(script)
+    if error:
+        raise SieveError("script invalid.: {}".format(error))
+    return 0
+
 
 hooks = {
     'post-receive': hook_post_receive,
+    'update': hook_update,
     }
 
 
@@ -133,8 +151,12 @@ def main():
         usage()
         sys.exit(1)
 
+    git_path = os.getcwd()
+    config = read_config(git_path)
+    logging.debug("config: {}", config)
+
     try:
-        retval = hook(hook_args)
+        retval = hook(config, *hook_args)
     except (ConfigError, SieveError), e:
         logging.error(e.message)
         retval = 1
