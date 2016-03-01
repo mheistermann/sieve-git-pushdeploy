@@ -9,15 +9,13 @@ Warning: experimental, use at your own risk. Probably quite buggy, just hacked
 this together quickly.
 
 
-## Installation
+## Installation without pip
 
 ```
 virtualenv -p python2 .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-Note: do not use a name different from `.venv`, `post-receive` depends on this.
-
 Copy the provided example copy to `~/.config/sieve-git-pushdeploy/sieve.conf`
 and adjust the values.
 
@@ -25,7 +23,7 @@ Somewhere,
 ```
 git init --bare sieve.git
 cd sieve.git/hooks
-ln -s path/to/sieve-git-pushdeploy/post-receive
+ln -s path/to/sieve-git-pushdeploy/.venv/bin/sieve-git-pushdeploy post-receive
 ```
 Now you can clone that repo and push your configs to it, they will be checked
 and uploaded automatically.
