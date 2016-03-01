@@ -22,26 +22,30 @@ import sys
 import logging
 import ConfigParser
 import subprocess
-
 from sievelib.managesieve import Client
+
+
+CONFIG_FILENAME = "~/.config/sieve-git-pushdeploy/sieve.conf"
 
 
 class ConfigError(Exception):
     pass
 
+
 class SieveError(Exception):
     pass
 
+
 def read_config(git_path):
     defaults = {
-            "starttls": "False",
-            "scriptname": "main",
-            "file": "main.sieve",
-            "authmech": None,
-            "refname": "refs/heads/master",
-            }
+        "starttls": "False",
+        "scriptname": "main",
+        "file": "main.sieve",
+        "authmech": None,
+        "refname": "refs/heads/master",
+    }
     config = ConfigParser.SafeConfigParser(defaults)
-    config_path = os.path.expanduser("~/.config/sieve-git-pushdeploy/sieve.conf")
+    config_path = os.path.expanduser(CONFIG_FILENAME)
     with open(config_path) as fp:
         config.readfp(fp)
     if git_path not in config.sections():
@@ -53,25 +57,31 @@ def read_config(git_path):
 
     return conf
 
+
 def get_script(refname, filename):
     try:
-        return subprocess.check_output(["git","show", refname + ":" + filename])
+        return subprocess.check_output(["git", "show",
+                                        refname + ":" + filename])
     except subprocess.CalledProcessError:
         raise ConfigError("Can't find file '{}' in '{}'".format(
             filename, refname))
 
+
 def connect(config):
     conn = Client(config["host"])
     res = conn.connect(config["user"],
-              config["pass"],
-              starttls=config["starttls"],
-              authmech=config["authmech"])
+                       config["pass"],
+                       starttls=config["starttls"],
+                       authmech=config["authmech"])
     if not res:
-        raise SieveError(("Login unsuccessful for %(user)s:***@%(host)s,"
-                   +" starttls=%(starttls)s, authmech=%(authmech)s") % config)
+        raise SieveError(
+                ("Login unsuccessful for %(user)s:***@%(host)s," +
+                 " starttls=%(starttls)s, authmech=%(authmech)s") % config)
     return conn
 
-def main():
+
+def hook_post_receive():
+    """Check sieve script syntax and upload it according to config file."""
     git_path = os.getcwd()
     config = read_config(git_path)
     logging.debug("config: {}", config)
@@ -92,10 +102,44 @@ def main():
         raise SieveError("could not set script active")
     print("Successfully uploaded sieve script.")
 
+hooks = {
+    'post-receive': hook_post_receive,
+    }
 
-if __name__ == "__main__":
+
+def usage():
+    print("Usage: Either call this script with no arguments by symlinking" +
+          " it from .git/hooks/, or specify the hook name as first argument.")
+    print("Implemented hooks:")
+    for name, func in hooks.iteritems():
+        print("{}: {}".format(name, func.__doc__))
+
+
+def main():
+    if len(sys.argv) == 1:
+        name = os.path.split(sys.argv[0])[-1]
+        hook_args = sys.argv[1:]
+    elif len(sys.argv) > 1:
+        name = sys.argv[1]
+        hook_args = sys.argv[2:]
+    else:
+        usage()
+        sys.exit(1)
+
     try:
-        ret = main()
+        hook = hooks[name]
+    except KeyError:
+        print("Can't handle hook '{}'.".format(name))
+        usage()
+        sys.exit(1)
+
+    try:
+        retval = hook(hook_args)
     except (ConfigError, SieveError), e:
         logging.error(e.message)
-        sys.exit(1)
+        retval = 1
+    sys.exit(retval)
+
+
+if __name__ == "__main__":
+    main()
