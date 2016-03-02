@@ -134,15 +134,8 @@ def usage():
 
 
 def main():
-    if len(sys.argv) == 1:
-        name = os.path.split(sys.argv[0])[-1]
-        hook_args = sys.argv[1:]
-    elif len(sys.argv) > 1:
-        name = sys.argv[1]
-        hook_args = sys.argv[2:]
-    else:
-        usage()
-        sys.exit(1)
+    name = os.path.split(sys.argv[0])[-1]
+    hook_args = sys.argv[1:]
 
     try:
         hook = hooks[name]
