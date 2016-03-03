@@ -1,4 +1,5 @@
 # Sieve git push deployment
+[![Build Status](https://travis-ci.org/mheistermann/sieve-git-pushdeploy.svg?branch=master)](https://travis-ci.org/mheistermann/sieve-git-pushdeploy)
 
 ## Introduction
 
