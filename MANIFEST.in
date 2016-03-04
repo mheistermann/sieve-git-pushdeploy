@@ -1,1 +1,2 @@
 include README.md
+include sieve_git_pushdeploy/sieve.conf.example

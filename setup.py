@@ -7,7 +7,7 @@ See: https://packaging.python.org/en/latest/distributing.html
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup
+from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -24,7 +24,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.0',
+    version='0.2.0',
 
     description='Push a sieve script to your mailserver and have it applied automatically.',
     long_description=long_description,
@@ -49,7 +49,7 @@ setup(
     ],
     keywords='git sieve pushdeployment',
 
-    py_modules=["hooks"],
+    packages=find_packages(),
     install_requires=['sievelib'],
 
     # List additional groups of dependencies here (e.g. development
@@ -63,7 +63,11 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'sieve-git-pushdeploy=hooks:main',
+            'sieve_git_pushdeploy=hooks:main',
         ],
     },
+    package_data={
+        'sieve_git_pushdeploy': ['README.md', 'sieve_git_pushdeploy/sieve.conf.example']
+    },
+    include_package_data=True,
 )
