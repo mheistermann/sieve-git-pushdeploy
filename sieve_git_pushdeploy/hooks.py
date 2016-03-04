@@ -126,8 +126,8 @@ hooks = {
 
 
 def usage():
-    print("Usage: Either call this script with no arguments by symlinking" +
-          " it from .git/hooks/, or specify the hook name as first argument.")
+    print("Usage: call this script with no arguments by symlinking" +
+          " it from .git/hooks/ (argv[0] must be the hook name)")
     print("Implemented hooks:")
     for name, func in hooks.iteritems():
         print("{}: {}".format(name, func.__doc__))
