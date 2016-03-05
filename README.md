@@ -13,7 +13,10 @@ this together quickly.
 
 ### Installation with pip
 
-```pip3 install sieve-git-pushdeploy```
+```
+pip3 install sieve-git-pushdeploy
+HOOK=/usr/local/bin/sieve_git_pushdeploy
+```
 
 ### Installation without pip
 
@@ -21,17 +24,18 @@ this together quickly.
 virtualenv -p python2 .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+HOOK=$(pwd)/.venv/bin/sieve_git_pushdeploy
 ```
+
+### Setup a sieve repository
+
 Copy the provided example copy to `~/.config/sieve-git-pushdeploy/sieve.conf`
 and adjust the values.
 
 Somewhere,
 ```
-HOOK=path/to/sieve-git-pushdeploy/.venv/bin/sieve-git-pushdeploy
-
 git init --bare sieve.git
 cd sieve.git/hooks
-ln -s $HOOK post-receive
 ln -s $HOOK update
 ```
 You can also opt to only use a subset of the hooks.
