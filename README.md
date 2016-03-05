@@ -9,8 +9,13 @@ to them to deploy a new version.
 Warning: experimental, use at your own risk. Probably quite buggy, just hacked
 this together quickly.
 
+## Installation
 
-## Installation without pip
+### Installation with pip
+
+```pip3 install sieve-git-pushdeploy```
+
+### Installation without pip
 
 ```
 virtualenv -p python2 .venv
