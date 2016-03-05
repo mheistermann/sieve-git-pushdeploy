@@ -4,5 +4,5 @@ user = myusername
 pass = mysecretpassword
 file = main.sieve
 scriptname = main
-branch=master
+branch = refs/heads/master
 

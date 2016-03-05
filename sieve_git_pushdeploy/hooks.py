@@ -44,7 +44,7 @@ def read_config(git_path):
     defaults = {
         "scriptname": "main",
         "file": "main.sieve",
-        "branch": "master",
+        "branch": "refs/heads/master",
     }
     config = configparser.SafeConfigParser(defaults)
     config_path = os.path.expanduser(CONFIG_FILENAME)
