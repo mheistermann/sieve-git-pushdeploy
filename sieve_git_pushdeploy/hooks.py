@@ -74,7 +74,7 @@ def connect(config):
     # TODO 2016-03-05:
     # when a new version of managesieve3 is released that supports cert_reqs,
     # update this to make sure the cert gets verified.
-    conn.cmd_starttls()
+    #conn.cmd_starttls()
     conn.login_plain(username=config["user"],
                      authuser=config["user"],
                      password=config["pass"])
