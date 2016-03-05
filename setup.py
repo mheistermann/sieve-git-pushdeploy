@@ -6,6 +6,11 @@ Based on https://github.com/pypa/sampleproject
 See: https://packaging.python.org/en/latest/distributing.html
 """
 
+import sys
+
+if sys.version_info.major < 3:
+    raise Exception("Python2 is not supported, install with pip3.")
+
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -24,7 +29,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.2.0',
+    version='0.3.0',
 
     description='Push a sieve script to your mailserver and have it applied automatically.',
     long_description=long_description,
@@ -44,13 +49,12 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-        'Programming Language :: Python :: 2 :: Only', # :( need to upgrade dependencies
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3 :: Only',
     ],
     keywords='git sieve pushdeployment',
 
     packages=find_packages(),
-    install_requires=['sievelib'],
+    install_requires=['managesieve3'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
