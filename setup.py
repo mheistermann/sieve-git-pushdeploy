@@ -63,7 +63,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'sieve_git_pushdeploy=hooks:main',
+            'sieve_git_pushdeploy=sieve_git_pushdeploy.hooks:main',
         ],
     },
     package_data={
