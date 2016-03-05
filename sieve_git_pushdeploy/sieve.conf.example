@@ -5,4 +5,5 @@ pass = mysecretpassword
 file = main.sieve
 scriptname = main
 branch = refs/heads/master
+tls_hostname = mail.example.com
 

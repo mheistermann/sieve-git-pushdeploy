@@ -22,6 +22,7 @@ import sys
 import logging
 import configparser
 import subprocess
+import ssl
 from managesieve3 import Managesieve
 
 
@@ -54,7 +55,7 @@ def read_config(git_path):
         raise ConfigError("Section [{}] missing".format(git_path))
 
     conf = {k: config.get(git_path, k) for k in [
-        "host", "user", "pass", "file", "scriptname", "branch"]}
+        "host", "user", "pass", "file", "scriptname", "branch", "tls_hostname"]}
 
     return conf
 
@@ -71,16 +72,18 @@ def get_script(refname, filename):
 
 def connect(config):
     conn = Managesieve(config["host"])
-    # TODO 2016-03-05:
-    # when a new version of managesieve3 is released that supports cert_reqs,
-    # update this to make sure the cert gets verified.
-    #conn.cmd_starttls()
+    ctx = ssl.create_default_context()
+    conn.cmd_starttls(ssl_version=ssl.PROTOCOL_TLSv1_2,
+                      cert_reqs=ssl.CERT_REQUIRED,
+                      ca_certs="/etc/ssl/certs/ca-certificates.crt",
+                      )
+    # XXX conn._sock is hackish, should rather improve the managesieve3 lib.
+    ssl.match_hostname(conn._sock.getpeercert(), config["tls_hostname"])
+
     conn.login_plain(username=config["user"],
                      authuser=config["user"],
                      password=config["pass"])
-#        raise SieveError(
-#                ("Login unsuccessful for %(user)s:***@%(host)s," +
-#                 " starttls=%(starttls)s, authmech=%(authmech)s") % config)
+
     logging.info("current scripts; %s", conn.cmd_listscripts())
     return conn
 
