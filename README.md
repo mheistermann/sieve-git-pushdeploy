@@ -46,11 +46,7 @@ and is available under the terms of the GPL v3.
 
 ## Ideas
 
-* when checkscript() fails, report the error - need to improve sievelib
-* Proper installation with pip?
-* Option to reject pushes with invalid syntax?
 * Colored output that stands out from the rest of the git output
-* Update sievelib to Python3, use Python3
 
 
 ## Contributing
