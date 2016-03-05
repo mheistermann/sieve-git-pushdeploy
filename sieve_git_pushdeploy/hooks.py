@@ -44,7 +44,7 @@ def read_config(git_path):
     defaults = {
         "scriptname": "main",
         "file": "main.sieve",
-        "refname": "refs/heads/master",
+        "branch": "master",
     }
     config = configparser.SafeConfigParser(defaults)
     config_path = os.path.expanduser(CONFIG_FILENAME)
@@ -54,7 +54,7 @@ def read_config(git_path):
         raise ConfigError("Section [{}] missing".format(git_path))
 
     conf = {k: config.get(git_path, k) for k in [
-        "host", "user", "pass", "file", "scriptname", "refname"]}
+        "host", "user", "pass", "file", "scriptname", "branch"]}
 
     return conf
 
@@ -85,18 +85,6 @@ def connect(config):
     return conn
 
 
-def hook_post_receive(config):
-    """Upload pushes to the configured branch to sieve server."""
-
-    script = get_script(config["refname"], config["file"])
-    conn = connect(config)
-
-    conn.cmd_putscript(config["scriptname"], script)
-    conn.cmd_setactive(config["scriptname"])
-    print("Successfully uploaded sieve script.")
-    return 0
-
-
 def hook_update(config, branch, old_hash, new_hash):
     """Check sieve script validity, reject updates with invalid scripts."""
     script = get_script(new_hash, config["file"])
@@ -105,14 +93,18 @@ def hook_update(config, branch, old_hash, new_hash):
     is_okay, code, text = conn.cmd_checkscript(script)
     if not is_okay:
         raise SieveError("script invalid.: {}: {}".format(code, text))
+
+    if branch == config["branch"]:
+        conn.cmd_putscript(config["scriptname"], script)
+        conn.cmd_setactive(config["scriptname"])
+        print("Successfully uploaded sieve script.")
+        return 0
+    print("not uploading script in non-deployment branch {}".format(branch))
     return 0
 
-
 hooks = {
-    'post-receive': hook_post_receive,
     'update': hook_update,
     }
-
 
 def usage():
     print("Usage: call this script with no arguments by symlinking" +
