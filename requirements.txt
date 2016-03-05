@@ -1,1 +1,1 @@
--e hg+http://bitbucket.org/heistermann/managesieve3/#egg=managesieve3
+https://bitbucket.org/heistermann/managesieve3/get/715be5e1cc84.tar.gz#egg=managesieve3
