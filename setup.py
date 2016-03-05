@@ -29,7 +29,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.3.1',
+    version='0.3.2',
 
     description='Push a sieve script to your mailserver and have it applied automatically.',
     long_description=long_description,
@@ -54,7 +54,8 @@ setup(
     keywords='git sieve pushdeployment',
 
     packages=find_packages(),
-    install_requires=['managesieve3'],
+    install_requires=['managesieve3>=1.2'],
+    dependency_links = ['git+https://bitbucket.org/myuser/managesieve3.git/master#egg=managesieve3'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
